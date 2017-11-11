@@ -25,7 +25,7 @@ template <class T> Cola<T> :: Cola ( const std::string& archivo,const char letra
 	if ( this->clave == -1 )
 		perror ( "Error en ftok" );
 
-	this->id = msgget ( this->clave,0777|IPC_CREAT );
+	this->id = msgget ( this->clave,0644|IPC_CREAT );
 	if ( this->id == -1 )
 		perror ( "Error en msgget" );
 }
