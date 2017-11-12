@@ -4,24 +4,32 @@
 
 #include "../ipcs/Cola.h"
 #include "protocol.h"
+#include "../utilidades/Logger.h"
+
+
 
 void Server::run() {
-  std::cout << "Soy server" << std::endl;
 
-  Cola<message> cola("/bin/bash", 'a');
+    Logger::getInstance()->info("Inicializando server");
 
-  message m;
+    Logger::getInstance()->info("Inicializando servicio de ciudades");
 
-  cola.leer(REQUEST, &m);
+    Logger::getInstance()->info("Inicializando servicio de monedas");
 
-  std::cout << "Cliente me envió key: " << m.key << std::endl;
+    Cola<message> cola("/bin/bash", 'a');
 
-  m.mtype = RESPONSE;
-  std::string value("respuestaza");
-  strcpy(m.value, value.c_str());
-  cola.escribir(m);
+    message m;
 
-  std::cout << "Terminandome! " << std::endl;
+    cola.leer(REQUEST, &m);
 
-  cola.destruir();
+    std::cout << "Cliente me envió key: " << m.key << std::endl;
+
+    m.mtype = RESPONSE;
+    std::string value("respuestaza");
+    strcpy(m.value, value.c_str());
+    cola.escribir(m);
+
+    std::cout << "Terminandome! " << std::endl;
+
+    cola.destruir();
 }
