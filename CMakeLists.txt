@@ -23,7 +23,7 @@ list(REMOVE_DUPLICATES Concu_news_INCLUDE_DIRS)
 include_directories(${Concu_news_INCLUDE_DIRS})
 
 
-message("${server_sources}")
+# message("${server_sources}")
 
 
 add_executable(cliente ${client_sources})

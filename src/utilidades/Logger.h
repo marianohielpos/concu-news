@@ -6,7 +6,6 @@
 #include <string>
 #include <iostream>
 #include <map>
-#include "Opciones.h"
 
 #define DEBUG "DEBUG"
 #define INFO "INFO"
@@ -52,7 +51,7 @@ public:
 
     static Logger* getInstance();
 
-    static void setInstance(Opciones opciones);
+    static void setInstance(std::string nombreArchivo, std::string nivel);
 
     static void deleteInstance();
 
