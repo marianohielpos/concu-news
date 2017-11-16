@@ -9,12 +9,12 @@ Opciones parsearParametros (int argc, char* const argv[]) {
     Opciones opciones;
 
     int opt;
-    while ((opt = getopt(argc, argv, "hd:l:k:")) != -1) {
+    while ((opt = getopt(argc, argv, "hd:l:n:")) != -1) {
         switch (opt) {
             case 'l':
                 opciones.logName = std::string(optarg);
                 break;
-            case 'k':
+            case 'n':
                 opciones.logLevel = std::string(optarg);
                 break;
             case 'd':
@@ -27,7 +27,7 @@ Opciones parsearParametros (int argc, char* const argv[]) {
                           << "\n"
                           << "Opciones:\n"
                           << "-l      Archivo de log (default: ninguno, se escribe a stdout)\n"
-                          << "-k      Nivel de log (default: info)\n"
+                          << "-n      Nivel de log (default: info)\n"
                           << std::endl;
                 exit(0);
 
