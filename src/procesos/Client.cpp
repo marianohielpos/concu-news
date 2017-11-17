@@ -36,9 +36,9 @@ message Client::composeRequest() {
     m.type = (opts_.mode == CLIENT_MODE_CITY) ? TYPE_GET_CITY : TYPE_GET_CURRENCY;
   }
 
-
   return m;
 }
+
 
 void Client::logRequest(message& m) {
   std::stringstream ss;
@@ -60,6 +60,16 @@ void Client::logRequest(message& m) {
 }
 
 
+void Client::printResponse(message& m) {
+  if (m.type == TYPE_SUCCESS) {
+    std::cout << "La respuesta del servidor es " << m.value << std::endl;
+  } else if (m.type == TYPE_ERROR) {
+    std::cout << "Oops, hubo un problema en el servidor. "
+              << "Su respuesta es " << m.value << std::endl;
+  }
+}
+
+
 void Client::run() {
   Logger::getInstance()->info("Inicializando cliente...");
 
@@ -72,7 +82,5 @@ void Client::run() {
   cola.escribir(m);
 
   cola.leer(RESPONSE, &m);
-
-  std::cout << "Servidor me respondió " << m.value << std::endl;
-
+  printResponse(m);
 }

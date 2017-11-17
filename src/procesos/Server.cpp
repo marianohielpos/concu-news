@@ -26,6 +26,7 @@ void Server::run() {
               << " y value: " << m.value << std::endl;
 
     m.mtype = RESPONSE;
+    m.type = TYPE_SUCCESS;
     std::string value("respuestaza");
     strcpy(m.value, value.c_str());
     cola.escribir(m);

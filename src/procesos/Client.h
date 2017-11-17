@@ -28,6 +28,7 @@ Opciones opts_;
 void checkOptions();
 message composeRequest();
 void logRequest(message& m);
+void printResponse(message& m);
 
 public:
   Client(Opciones opts);
