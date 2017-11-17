@@ -25,7 +25,9 @@ class Client {
 
 Opciones opts_;
 
+void checkOptions();
 message composeRequest();
+void logRequest(message& m);
 
 public:
   Client(Opciones opts);
