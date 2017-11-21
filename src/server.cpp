@@ -1,9 +1,17 @@
 
 #include "procesos/Server.h"
+#include "utilidades/Opciones.h"
+#include "utilidades/Logger.h"
 
 int main(int argc, char const *argv[])
 {
-  Server s;
-  s.run();
-  return 0;
+    Opciones opciones;
+
+    Logger::setInstance(opciones);
+
+    Server s;
+
+    s.run();
+
+    return 0;
 }

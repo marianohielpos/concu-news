@@ -7,6 +7,25 @@ set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 
 
-add_executable(cliente src/client.cpp src/procesos/Client.cpp)
+file(GLOB_RECURSE client_sources "src/client.cpp" "src/utilidades/*.cpp" "src/procesos/*.cpp" "src/ipcs/*.cpp")
 
-add_executable(server src/server.cpp src/procesos/Server.cpp)
+file(GLOB_RECURSE server_sources "src/server.cpp" "src/utilidades/*.cpp" "src/procesos/*.cpp" src/ipcs/*.cpp)
+
+file(GLOB_RECURSE Concu_news_HEADERS "src/*.h")
+
+set (Concu_news_INCLUDE_DIRS "")
+foreach (_headerFile ${Concu_news_HEADERS})
+    get_filename_component(_dir ${_headerFile} PATH)
+    list (APPEND Concu_news_INCLUDE_DIRS ${_dir})
+endforeach()
+list(REMOVE_DUPLICATES Concu_news_INCLUDE_DIRS)
+
+include_directories(${Concu_news_INCLUDE_DIRS})
+
+
+message("${server_sources}")
+
+
+add_executable(cliente ${client_sources})
+
+add_executable(server ${server_sources})

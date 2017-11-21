@@ -2,7 +2,7 @@
 #define LOGGER_H_
 
 
-#include <LockFile.h>
+#include "../ipcs/LockFile.h"
 #include <string>
 #include <iostream>
 #include <map>
