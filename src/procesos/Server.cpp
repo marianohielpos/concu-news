@@ -1,35 +1,59 @@
 #include "Server.h"
 
 #include <iostream>
-
+#include <unistd.h>
 #include "../ipcs/Cola.h"
 #include "protocol.h"
 #include "../utilidades/Logger.h"
-
+#include "MicroServicio.h"
 
 
 void Server::run() {
 
-    Logger::getInstance()->info("Inicializando server");
-
-    Logger::getInstance()->info("Inicializando servicio de ciudades");
-
-    Logger::getInstance()->info("Inicializando servicio de monedas");
-
-    Cola<message> cola("/bin/bash", 'a');
+    initialize();
 
     message m;
 
-    cola.leer(REQUEST, &m);
+    this->colaPublica.leer(REQUEST, &m);
 
     std::cout << "Cliente me envió key: " << m.key << std::endl;
 
     m.mtype = RESPONSE;
     std::string value("respuestaza");
     strcpy(m.value, value.c_str());
-    cola.escribir(m);
+    this->colaPublica.escribir(m);
 
     std::cout << "Terminandome! " << std::endl;
 
-    cola.destruir();
+    this->colaPublica.destruir();
+}
+
+void Server::initialize() const {
+    Logger::getInstance()->info("Inicializando server");
+
+    Logger::getInstance()->info("Inicializando servicio de ciudades");
+
+    pid_t cotizacionDeMonedasPID = fork();
+
+    if (cotizacionDeMonedasPID == 0) {
+
+        MicroServicio cotizacionDeMonedas("cotizacion_de_monedas.txt");
+
+        cotizacionDeMonedas.setQueue(&this->cotizacionDeMonedasCola);
+
+        cotizacionDeMonedas.run();
+    }
+
+    Logger::getInstance()->info("Inicializando servicio de monedas");
+
+    pid_t estadoDelTiempoPID = fork();
+
+    if (estadoDelTiempoPID == 0) {
+
+        MicroServicio estadoDelTiempo("estado_del_tiempo.txt");
+
+        estadoDelTiempo.setQueue(&this->estadoDeTiempoCola);
+
+        estadoDelTiempo.run();
+    }
 }

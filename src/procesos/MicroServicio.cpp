@@ -4,6 +4,8 @@
 #include <map>
 #include <exception>
 #include <string>
+#include <unistd.h>
+#include "../ipcs/SIGINT_Handler.h"
 
 void MicroServicio::hidrate() {
 
@@ -42,4 +44,47 @@ void MicroServicio::persist() {
     }
 
     file.close();
+}
+
+void MicroServicio::run() {
+
+    SIGINT_Handler s;
+
+    this->hidrate();
+
+    while (s.getGracefulQuit() != 1) {
+
+        this->handleRequest();
+
+    }
+
+    exit(0);
+}
+
+MicroServicio::MicroServicio(std::string file) {
+    this->file = file;
+}
+
+void MicroServicio::handleRequest() {
+
+    sleep(1);
+
+}
+
+void MicroServicio::set(std::string key, std::string value) {
+    this->data[key] = value;
+}
+
+std::string MicroServicio::get(std::string key) {
+    return this->data[key];
+}
+
+void MicroServicio::send() {
+
+}
+
+void MicroServicio::setQueue(Cola<message> *cola) {
+
+    this->cola = cola;
+
 }

@@ -3,6 +3,8 @@
 
 #include <map>
 #include <string>
+#include <Cola.h>
+#include "protocol.h"
 
 class MicroServicio {
 
@@ -13,8 +15,25 @@ private:
     
     void hidrate();
 
+    void set();
+
+    std::string get(std::string key);
+
+    void send();
+
+    void handleRequest();
+
     std::string file;
 
+    Cola<message> *cola = nullptr;
+
+public:
+
+    MicroServicio(std::string file);
+
+    void run();
+
+    void setQueue(Cola<message> *cola);
 };
 
 
