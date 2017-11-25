@@ -22,9 +22,11 @@ void Server::run() {
 
     cola.leer(REQUEST, &m);
 
-    std::cout << "Cliente me envió key: " << m.key << std::endl;
+    std::cout << "Cliente me envió key: " << m.key
+              << " y value: " << m.value << std::endl;
 
     m.mtype = RESPONSE;
+    m.type = TYPE_SUCCESS;
     std::string value("respuestaza");
     strcpy(m.value, value.c_str());
     cola.escribir(m);

@@ -13,8 +13,8 @@ Logger* Logger::getInstance() {
 }
 
 
-void Logger::setInstance(Opciones opciones) {
-    Logger::instance = new Logger(opciones.logName, opciones.logLevel);
+void Logger::setInstance(std::string logName, std::string logLevel) {
+    Logger::instance = new Logger(logName, logLevel);
 }
 
 
