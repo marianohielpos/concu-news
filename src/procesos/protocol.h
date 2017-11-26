@@ -9,7 +9,7 @@
 #define TYPE_SET_CITY 3
 #define TYPE_SET_CURRENCY 4
 
-#define TYPE_SUCESS 1
+#define TYPE_SUCCESS 1
 #define TYPE_ERROR 2
 
 #define TEXT_SIZE 255
