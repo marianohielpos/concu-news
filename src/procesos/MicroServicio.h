@@ -15,17 +15,15 @@ private:
     
     void hidrate();
 
-    void set();
+    void set(std::string key, std::string value);
 
     std::string get(std::string key);
-
-    void send();
 
     void handleRequest();
 
     std::string file;
 
-    Cola<message> *cola = nullptr;
+    const Cola<message> *cola = nullptr;
 
 public:
 
@@ -33,7 +31,7 @@ public:
 
     void run();
 
-    void setQueue(Cola<message> *cola);
+    void setQueue(const Cola<message> *cola);
 };
 
 

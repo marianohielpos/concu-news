@@ -41,7 +41,7 @@ void Server::initialize() const {
 
         MicroServicio cotizacionDeMonedas("cotizacion_de_monedas.txt");
 
-        cotizacionDeMonedas.setQueue(&this->cotizacionDeMonedasCola);
+        cotizacionDeMonedas.setQueue(&this->colaMicroServicios);
 
         cotizacionDeMonedas.run();
     }
@@ -54,7 +54,7 @@ void Server::initialize() const {
 
         MicroServicio estadoDelTiempo("estado_del_tiempo.txt");
 
-        estadoDelTiempo.setQueue(&this->estadoDeTiempoCola);
+        estadoDelTiempo.setQueue(&this->colaMicroServicios);
 
         estadoDelTiempo.run();
     }

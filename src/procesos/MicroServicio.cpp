@@ -5,6 +5,7 @@
 #include <exception>
 #include <string>
 #include <unistd.h>
+#include "protocol.h"
 #include "../ipcs/SIGINT_Handler.h"
 
 void MicroServicio::hidrate() {
@@ -67,7 +68,23 @@ MicroServicio::MicroServicio(std::string file) {
 
 void MicroServicio::handleRequest() {
 
-    sleep(1);
+    message mensaje;
+
+    this->cola->leer(REQUEST, &mensaje);
+
+    mensaje.mtype = RESPONSE;
+    mensaje.type = TYPE_SUCCESS;
+
+    if (mensaje.type == TYPE_SET_CITY) {
+        this->set(std::string(mensaje.key), std::string(mensaje.value));
+        std::string value("Seteo correctamente del valor");
+        strcpy(mensaje.value, value.c_str());
+
+    } else {
+        strcpy(mensaje.value, this->get(mensaje.key).c_str());
+    }
+
+    this->cola->escribir(mensaje);
 
 }
 
@@ -79,11 +96,7 @@ std::string MicroServicio::get(std::string key) {
     return this->data[key];
 }
 
-void MicroServicio::send() {
-
-}
-
-void MicroServicio::setQueue(Cola<message> *cola) {
+void MicroServicio::setQueue(const Cola<message> *cola) {
 
     this->cola = cola;
 

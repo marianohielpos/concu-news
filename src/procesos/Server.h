@@ -17,9 +17,8 @@ class Server {
 
 private:
 
-    Cola<message> colaPublica = Cola("/bin/bash", 'a');
-    Cola<message> cotizacionDeMonedasCola = Cola("/bin/bash", 'b');
-    Cola<message> estadoDeTiempoCola = Cola("/bin/bash", 'c');
+    Cola<message> colaPublica = Cola<message>("/bin/bash", 'a');
+    Cola<message> colaMicroServicios = Cola<message>("/bin/bash", 'b');
 
 public:
 
