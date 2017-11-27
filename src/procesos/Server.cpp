@@ -19,10 +19,19 @@ void Server::run() {
     std::cout << "Cliente me envió key: " << m.key
               << " y value: " << m.value << std::endl;
 
-    m.mtype = RESPONSE;
+    if (m.type == TYPE_SET_CITY || m.type == TYPE_GET_CITY) {
+        this->colaCiudades.escribir(m);
+
+        this->colaCiudades.leer(RESPONSE,&m);
+    } else {
+        this->colaMonedas.escribir(m);
+
+        this->colaMonedas.leer(RESPONSE,&m);
+    }
+
+    m.mtype = m.responsePriority;
     m.type = TYPE_SUCCESS;
-    std::string value("respuestaza");
-    strcpy(m.value, value.c_str());
+
     this->colaPublica.escribir(m);
 
     std::cout << "Terminandome! " << std::endl;
@@ -41,7 +50,7 @@ void Server::initialize() const {
 
         MicroServicio cotizacionDeMonedas("cotizacion_de_monedas.txt");
 
-        cotizacionDeMonedas.setQueue(&this->colaMicroServicios);
+        cotizacionDeMonedas.setQueue(&this->colaCiudades);
 
         cotizacionDeMonedas.run();
     }
@@ -54,7 +63,7 @@ void Server::initialize() const {
 
         MicroServicio estadoDelTiempo("estado_del_tiempo.txt");
 
-        estadoDelTiempo.setQueue(&this->colaMicroServicios);
+        estadoDelTiempo.setQueue(&this->colaMonedas);
 
         estadoDelTiempo.run();
     }

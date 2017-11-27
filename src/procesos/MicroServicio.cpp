@@ -51,13 +51,9 @@ void MicroServicio::run() {
 
     SIGINT_Handler s;
 
-    this->hidrate();
-
-    while (s.getGracefulQuit() != 1) {
 
         this->handleRequest();
 
-    }
 
     exit(0);
 }
@@ -75,7 +71,7 @@ void MicroServicio::handleRequest() {
     mensaje.mtype = RESPONSE;
     mensaje.type = TYPE_SUCCESS;
 
-    if (mensaje.type == TYPE_SET_CITY) {
+    if (mensaje.type == TYPE_SET_CITY || mensaje.type == TYPE_SET_CURRENCY) {
         this->set(std::string(mensaje.key), std::string(mensaje.value));
         std::string value("Seteo correctamente del valor");
         strcpy(mensaje.value, value.c_str());
@@ -93,6 +89,8 @@ void MicroServicio::set(std::string key, std::string value) {
 }
 
 std::string MicroServicio::get(std::string key) {
+
+    return std::string("devolvi desde el micro");
     return this->data[key];
 }
 
