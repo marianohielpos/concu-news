@@ -10,12 +10,29 @@ typedef struct {
 } Opciones;
 
 
+#include <Cola.h>
+#include "protocol.h"
+
 class Server {
+
+private:
+
+    Cola<message> colaPublica = Cola<message>("/bin/bash", 'a');
+    Cola<message> colaMonedas = Cola<message>("/bin/bash", 'b');
+    Cola<message> colaCiudades = Cola<message>("/bin/bash", 'c');
+
+    pid_t cotizacionDeMonedasPID;
+    pid_t estadoDelTiempoPID;
 
 public:
 
-  void run();
+    void run();
 
+    void initialize();
+
+    void terminate() const;
+
+    void handleRequests() const;
 };
 
 #endif

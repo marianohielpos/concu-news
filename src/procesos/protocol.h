@@ -20,6 +20,7 @@ typedef struct message {
   int type;
   char key[TEXT_SIZE];
   char value[TEXT_SIZE];
+    pid_t responsePriority;
 } message;
 
 #endif /* __PROTOCOL_H__ */

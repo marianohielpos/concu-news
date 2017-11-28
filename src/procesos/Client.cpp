@@ -1,7 +1,7 @@
 #include "Client.h"
 #include "../ipcs/Cola.h"
 #include "../utilidades/Logger.h"
-
+#include <unistd.h>
 #include <iostream>
 #include <sstream>
 
@@ -35,6 +35,8 @@ message Client::composeRequest() {
   } else {
     m.type = (opts_.mode == CLIENT_MODE_CITY) ? TYPE_GET_CITY : TYPE_GET_CURRENCY;
   }
+
+  m.responsePriority = getpid();
 
   return m;
 }
@@ -81,6 +83,6 @@ void Client::run() {
 
   cola.escribir(m);
 
-  cola.leer(RESPONSE, &m);
+  cola.leer(getpid(), &m);
   printResponse(m);
 }

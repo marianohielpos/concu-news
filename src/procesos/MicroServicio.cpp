@@ -4,6 +4,10 @@
 #include <map>
 #include <exception>
 #include <string>
+#include <unistd.h>
+#include <SignalHandler.h>
+#include "protocol.h"
+#include "../ipcs/SIGINT_Handler.h"
 
 void MicroServicio::hidrate() {
 
@@ -42,4 +46,61 @@ void MicroServicio::persist() {
     }
 
     file.close();
+}
+
+void MicroServicio::run() {
+
+    SIGINT_Handler sigint_handler;
+
+    SignalHandler :: getInstance()->registrarHandler (SIGINT, &sigint_handler);
+
+    while (sigint_handler.getGracefulQuit() != 1) {
+        this->handleRequest();
+    }
+
+    SignalHandler :: destruir();
+
+    exit(0);
+}
+
+MicroServicio::MicroServicio(std::string file) {
+    this->file = file;
+}
+
+void MicroServicio::handleRequest() {
+
+    message mensaje;
+
+    this->cola->leer(REQUEST, &mensaje);
+
+    mensaje.mtype = RESPONSE;
+    mensaje.type = TYPE_SUCCESS;
+
+    if (mensaje.type == TYPE_SET_CITY || mensaje.type == TYPE_SET_CURRENCY) {
+        this->set(std::string(mensaje.key), std::string(mensaje.value));
+        std::string value("Seteo correctamente del valor");
+        strcpy(mensaje.value, value.c_str());
+
+    } else {
+        strcpy(mensaje.value, this->get(mensaje.key).c_str());
+    }
+
+    this->cola->escribir(mensaje);
+
+}
+
+void MicroServicio::set(std::string key, std::string value) {
+    this->data[key] = value;
+}
+
+std::string MicroServicio::get(std::string key) {
+
+    return std::string("devolvi desde el micro");
+    return this->data[key];
+}
+
+void MicroServicio::setQueue(const Cola<message> *cola) {
+
+    this->cola = cola;
+
 }
