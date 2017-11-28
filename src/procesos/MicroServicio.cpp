@@ -5,6 +5,7 @@
 #include <exception>
 #include <string>
 #include <unistd.h>
+#include <SignalHandler.h>
 #include "protocol.h"
 #include "../ipcs/SIGINT_Handler.h"
 
@@ -49,11 +50,15 @@ void MicroServicio::persist() {
 
 void MicroServicio::run() {
 
-    SIGINT_Handler s;
+    SIGINT_Handler sigint_handler;
 
+    SignalHandler :: getInstance()->registrarHandler (SIGINT, &sigint_handler);
 
+    while (sigint_handler.getGracefulQuit() != 1) {
         this->handleRequest();
+    }
 
+    SignalHandler :: destruir();
 
     exit(0);
 }

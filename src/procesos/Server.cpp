@@ -4,6 +4,7 @@
 #include <unistd.h>
 #include <signal.h>
 #include <SIGINT_Handler.h>
+#include <SignalHandler.h>
 #include "../ipcs/Cola.h"
 #include "protocol.h"
 #include "../utilidades/Logger.h"
@@ -22,11 +23,13 @@ void Server::run() {
 
 void Server::handleRequests() const {
 
-    SIGINT_Handler s;
+    SIGINT_Handler sigint_handler;
+
+    SignalHandler :: getInstance()->registrarHandler (SIGINT, &sigint_handler);
 
     message m;
 
-    while (s.getGracefulQuit() != 1) {
+    while (sigint_handler.getGracefulQuit() != 1) {
 
         colaPublica.leer(REQUEST, &m);
 
@@ -58,6 +61,9 @@ void Server::handleRequests() const {
 
         colaPublica.escribir(m);
     }
+
+    SignalHandler::destruir();
+
 }
 
 void Server::terminate() const {
