@@ -21,11 +21,18 @@ private:
     Cola<message> colaMonedas = Cola<message>("/bin/bash", 'b');
     Cola<message> colaCiudades = Cola<message>("/bin/bash", 'c');
 
+    pid_t cotizacionDeMonedasPID;
+    pid_t estadoDelTiempoPID;
+
 public:
 
     void run();
 
-    void initialize() const;
+    void initialize();
+
+    void terminate() const;
+
+    void handleRequests() const;
 };
 
 #endif

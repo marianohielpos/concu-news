@@ -1,7 +1,9 @@
 #include "Server.h"
-
+#include <sstream>
 #include <iostream>
 #include <unistd.h>
+#include <signal.h>
+#include <SIGINT_Handler.h>
 #include "../ipcs/Cola.h"
 #include "protocol.h"
 #include "../utilidades/Logger.h"
@@ -10,43 +12,81 @@
 
 void Server::run() {
 
-    initialize();
+    this->initialize();
+
+    this->handleRequests();
+
+    this->terminate();
+
+}
+
+void Server::handleRequests() const {
+
+    SIGINT_Handler s;
 
     message m;
 
-    this->colaPublica.leer(REQUEST, &m);
+    while (s.getGracefulQuit() != 1) {
 
-    std::cout << "Cliente me envió key: " << m.key
-              << " y value: " << m.value << std::endl;
+        colaPublica.leer(REQUEST, &m);
 
-    if (m.type == TYPE_SET_CITY || m.type == TYPE_GET_CITY) {
-        this->colaCiudades.escribir(m);
+        std::stringstream ss;
 
-        this->colaCiudades.leer(RESPONSE,&m);
-    } else {
-        this->colaMonedas.escribir(m);
+        ss << "Cliente me envió key: " << m.key
+           << " y value: " << m.value;
 
-        this->colaMonedas.leer(RESPONSE,&m);
+        Logger::getInstance()->info(ss.str());
+
+        if (m.type == TYPE_SET_CITY || m.type == TYPE_GET_CITY) {
+            Logger::getInstance()->info("Enviando mensaje a microservicio de ciudades");
+
+            colaCiudades.escribir(m);
+
+            colaCiudades.leer(RESPONSE, &m);
+        } else {
+            Logger::getInstance()->info("Enviando mensaje a microservicio de monedas");
+
+            colaMonedas.escribir(m);
+
+            colaMonedas.leer(RESPONSE, &m);
+        }
+
+        m.mtype = m.responsePriority;
+        m.type = TYPE_SUCCESS;
+
+        Logger::getInstance()->info("Respondiendo mensaje");
+
+        colaPublica.escribir(m);
     }
-
-    m.mtype = m.responsePriority;
-    m.type = TYPE_SUCCESS;
-
-    this->colaPublica.escribir(m);
-
-    std::cout << "Terminandome! " << std::endl;
-
-    this->colaPublica.destruir();
 }
 
-void Server::initialize() const {
+void Server::terminate() const {
+    Logger::getInstance()->info("Terminando server");
+
+    int exit;
+
+    Logger::getInstance()->info("Terminando microservicio de cotización de monedas");
+    kill(cotizacionDeMonedasPID, SIGINT);
+    wait(&exit);
+
+    Logger::getInstance()->info("Terminando microservicio de estado del tiempo");
+    kill(estadoDelTiempoPID, SIGINT);
+    wait(&exit);
+
+    Logger::getInstance()->info("Terminando colas");
+    colaPublica.destruir();
+    colaCiudades.destruir();
+    colaMonedas.destruir();
+}
+
+void Server::initialize() {
     Logger::getInstance()->info("Inicializando server");
 
     Logger::getInstance()->info("Inicializando servicio de ciudades");
 
-    pid_t cotizacionDeMonedasPID = fork();
+    this->cotizacionDeMonedasPID = fork();
 
-    if (cotizacionDeMonedasPID == 0) {
+    if (this->cotizacionDeMonedasPID == 0) {
 
         MicroServicio cotizacionDeMonedas("cotizacion_de_monedas.txt");
 
@@ -57,9 +97,9 @@ void Server::initialize() const {
 
     Logger::getInstance()->info("Inicializando servicio de monedas");
 
-    pid_t estadoDelTiempoPID = fork();
+    this->estadoDelTiempoPID = fork();
 
-    if (estadoDelTiempoPID == 0) {
+    if (this->estadoDelTiempoPID == 0) {
 
         MicroServicio estadoDelTiempo("estado_del_tiempo.txt");
 
