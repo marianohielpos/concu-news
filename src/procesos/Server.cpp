@@ -41,18 +41,19 @@ void Server::handleRequests() const {
         if (m.type == TYPE_SET_CITY || m.type == TYPE_GET_CITY) {
             Logger::getInstance()->info("Enviando mensaje a microservicio de ciudades");
 
-            colaCiudades.escribir(m);
-
-            colaCiudades.leer(RESPONSE, &m);
+            m.mtype = this->estadoDelTiempoPID;
         } else {
             Logger::getInstance()->info("Enviando mensaje a microservicio de monedas");
 
-            colaMonedas.escribir(m);
-
-            colaMonedas.leer(RESPONSE, &m);
+            m.mtype = this->cotizacionDeMonedasPID;
         }
 
+        colaMicorServicios.escribir(m);
+
+        colaMicorServicios.leer(RESPONSE, &m);
+
         m.mtype = m.responsePriority;
+
         m.type = TYPE_SUCCESS;
 
         Logger::getInstance()->info("Respondiendo mensaje");
@@ -83,8 +84,7 @@ void Server::terminate() const {
 
     Logger::getInstance()->info("Terminando colas");
     this->colaPublica.destruir();
-    this->colaCiudades.destruir();
-    this->colaMonedas.destruir();
+    this->colaMicorServicios.destruir();
 }
 
 void Server::initialize() {
@@ -98,7 +98,7 @@ void Server::initialize() {
 
         MicroServicio cotizacionDeMonedas("cotizacion_de_monedas.txt");
 
-        cotizacionDeMonedas.setQueue(&this->colaMonedas);
+        cotizacionDeMonedas.setQueue(&this->colaMicorServicios);
 
         cotizacionDeMonedas.run();
     }
@@ -111,7 +111,7 @@ void Server::initialize() {
 
         MicroServicio estadoDelTiempo("estado_del_tiempo.txt");
 
-        estadoDelTiempo.setQueue(&this->colaCiudades);
+        estadoDelTiempo.setQueue(&this->colaMicorServicios);
 
         estadoDelTiempo.run();
     }

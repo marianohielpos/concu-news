@@ -19,8 +19,7 @@ class Server {
 private:
 
     Cola<message> colaPublica = Cola<message>("/bin/bash", 'a');
-    Cola<message> colaMonedas = Cola<message>("/bin/bash", 'b');
-    Cola<message> colaCiudades = Cola<message>("/bin/bash", 'c');
+    Cola<message> colaMicorServicios = Cola<message>("/bin/bash", 'b');
 
     pid_t cotizacionDeMonedasPID = 0;
     pid_t estadoDelTiempoPID = 0;

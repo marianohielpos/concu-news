@@ -25,6 +25,8 @@ private:
 
     const Cola<message> *cola = nullptr;
 
+    pid_t queuePriority;
+
 public:
 
     MicroServicio(std::string file);

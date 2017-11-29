@@ -74,13 +74,14 @@ void MicroServicio::run() {
 
 MicroServicio::MicroServicio(std::string file) {
     this->file = file;
+    this->queuePriority = getpid();
 }
 
 void MicroServicio::handleRequest() {
 
     message mensaje;
 
-    this->cola->leer(REQUEST, &mensaje);
+    this->cola->leer(this->queuePriority, &mensaje);
 
     if (mensaje.type == TYPE_SET_CITY || mensaje.type == TYPE_SET_CURRENCY) {
         this->set(std::string(mensaje.key), std::string(mensaje.value));
