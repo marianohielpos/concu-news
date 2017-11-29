@@ -8,6 +8,8 @@
 #define CLIENT_MODE_CITY 1
 #define CLIENT_MODE_CURRENCY 2
 
+#define VALUE_UNSET 9999
+
 typedef struct {
     std::string logName = "";
     std::string logLevel = "info";
@@ -17,6 +19,10 @@ typedef struct {
     int mode = CLIENT_MODE_UNSET;
     std::string key = "";
     std::string value = "";
+
+    float temperature = VALUE_UNSET;
+    unsigned int pressure = VALUE_UNSET;
+    unsigned int humidity = VALUE_UNSET;
 
 } Opciones;
 

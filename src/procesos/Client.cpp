@@ -10,14 +10,30 @@ Client::Client(Opciones opts) : opts_(opts) {
 }
 
 void Client::checkOptions() {
+
   if (opts_.key.empty()) {
-      std::cout << "Especifique una clave!" << std::endl;
-      exit(1);
+    std::cout << "Especifique una clave!" << std::endl;
+    exit(1);
   }
 
   if (opts_.admin && opts_.value.empty()) {
+    if (opts_.mode == CLIENT_MODE_CITY) {
+      if (opts_.temperature != VALUE_UNSET &&
+          opts_.pressure != VALUE_UNSET &&
+          opts_.humidity != VALUE_UNSET) {
+        std::stringstream ss;
+
+        ss << opts_.temperature << ';' << opts_.pressure << ';' << opts_.humidity;
+        opts_.value = ss.str();
+      } else {
+        std::cout << "Tiene que especificar los 3 valores: "
+                  << "temperatura, presión y humedad!" << std::endl;
+        exit(1);
+      }
+    } else {
       std::cout << "Especifique un valor!" << std::endl;
       exit(1);
+    }
   }
 }
 
