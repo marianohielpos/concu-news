@@ -95,7 +95,12 @@ void MicroServicio::set(std::string key, std::string value) {
 
 std::string MicroServicio::get(std::string key) {
 
-    return std::string("devolvi desde el micro");
+    std::map<std::string, std::string>::iterator it = this->data.find(key);
+
+    if (it == this->data.end()) {
+        return "Elemento no encontrado";
+    }
+
     return this->data[key];
 }
 

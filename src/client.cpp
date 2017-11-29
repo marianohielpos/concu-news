@@ -10,7 +10,7 @@ Opciones parsearParametros (int argc, char* const argv[]) {
 
     int opt;
     int mode = 0;
-    while ((opt = getopt(argc, argv, "hdacm:l:n:k:v:")) != -1) {
+    while ((opt = getopt(argc, argv, "hdacml:n:k:v:")) != -1) {
         switch (opt) {
             case 'l':
                 opciones.logName = std::string(optarg);
