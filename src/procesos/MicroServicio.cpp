@@ -73,17 +73,15 @@ void MicroServicio::handleRequest() {
 
     this->cola->leer(REQUEST, &mensaje);
 
-    mensaje.mtype = RESPONSE;
-    mensaje.type = TYPE_SUCCESS;
-
     if (mensaje.type == TYPE_SET_CITY || mensaje.type == TYPE_SET_CURRENCY) {
         this->set(std::string(mensaje.key), std::string(mensaje.value));
-        std::string value("Seteo correctamente del valor");
-        strcpy(mensaje.value, value.c_str());
-
+        strcpy(mensaje.value, "Seteo correctamente del valor");
     } else {
         strcpy(mensaje.value, this->get(mensaje.key).c_str());
     }
+
+    mensaje.mtype = RESPONSE;
+    mensaje.type = TYPE_SUCCESS;
 
     this->cola->escribir(mensaje);
 
