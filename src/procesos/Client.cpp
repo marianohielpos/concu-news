@@ -4,6 +4,7 @@
 #include <unistd.h>
 #include <iostream>
 #include <sstream>
+#include <cstring>
 
 
 Client::Client(Opciones opts) : opts_(opts) {
