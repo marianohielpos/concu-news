@@ -26,10 +26,15 @@ void Server::run() {
 void Server::handleRequests() const {
 
     message m;
+    int resultado = 0;
 
     while (this->sigint_handler.getGracefulQuit() != 1) {
 
-        colaPublica.leer(REQUEST, &m);
+        resultado = colaPublica.leer(REQUEST, &m);
+
+        if (resultado == -1) {
+            continue;
+        }
 
         std::stringstream ss;
 
