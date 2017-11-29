@@ -11,7 +11,7 @@ class MicroServicio {
 private:
     std::map<std::string, std::string> data;
 
-    void persist();
+    void persist() const;
     
     void hidrate();
 

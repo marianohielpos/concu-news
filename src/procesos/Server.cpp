@@ -98,7 +98,7 @@ void Server::initialize() {
 
         MicroServicio cotizacionDeMonedas("cotizacion_de_monedas.txt");
 
-        cotizacionDeMonedas.setQueue(&this->colaCiudades);
+        cotizacionDeMonedas.setQueue(&this->colaMonedas);
 
         cotizacionDeMonedas.run();
     }
@@ -111,7 +111,7 @@ void Server::initialize() {
 
         MicroServicio estadoDelTiempo("estado_del_tiempo.txt");
 
-        estadoDelTiempo.setQueue(&this->colaMonedas);
+        estadoDelTiempo.setQueue(&this->colaCiudades);
 
         estadoDelTiempo.run();
     }

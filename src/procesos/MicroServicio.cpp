@@ -35,7 +35,7 @@ void MicroServicio::hidrate() {
 }
 
 
-void MicroServicio::persist() {
+void MicroServicio::persist() const {
 
     std::ofstream file (this->file);
 
@@ -44,9 +44,9 @@ void MicroServicio::persist() {
         return;
     }
 
-    for (std::map<std::string, std::string>::iterator it = this->data.begin(); it != this->data.end() ; it++) {
+    for (std::map<std::string, std::string>::const_iterator it = this->data.begin(); it != this->data.end() ; it++) {
 
-        file << it->first.c_str() << ":" << it->second.c_str();
+        file << it->first.c_str() << ":" << it->second.c_str() << std::endl;
         
     }
 
