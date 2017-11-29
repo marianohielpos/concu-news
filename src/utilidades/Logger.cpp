@@ -31,7 +31,7 @@ Logger::Logger(std::string nombreArchivo, std::string nivel) {
         this->logLevel = nivel;
 
     if(nombreArchivo.empty()) {
-        this->lock = new LockFile("tmp");
+        this->lock = new LockFile("/tmp/lock1");
         this->cout = true;
         return;
     }
