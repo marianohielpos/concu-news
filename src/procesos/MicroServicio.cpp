@@ -37,7 +37,7 @@ void MicroServicio::hidrate() {
 
 void MicroServicio::persist() const {
 
-    std::ofstream file (this->file);
+    std::ofstream file (this->file, std::ofstream::trunc);
 
     if (!file.is_open()) {
         Logger::getInstance()->error("Error abriendo el archivo de datos. No se persisten los datos");
