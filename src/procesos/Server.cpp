@@ -13,6 +13,8 @@
 
 void Server::run() {
 
+    SignalHandler :: getInstance()->registrarHandler (SIGINT, &this->sigint_handler);
+
     this->initialize();
 
     this->handleRequests();
@@ -23,13 +25,9 @@ void Server::run() {
 
 void Server::handleRequests() const {
 
-    SIGINT_Handler sigint_handler;
-
-    SignalHandler :: getInstance()->registrarHandler (SIGINT, &sigint_handler);
-
     message m;
 
-    while (sigint_handler.getGracefulQuit() != 1) {
+    while (this->sigint_handler.getGracefulQuit() != 1) {
 
         colaPublica.leer(REQUEST, &m);
 
@@ -71,18 +69,22 @@ void Server::terminate() const {
 
     int exit;
 
-    Logger::getInstance()->info("Terminando microservicio de cotización de monedas");
-    kill(cotizacionDeMonedasPID, SIGINT);
-    wait(&exit);
+    if(this->cotizacionDeMonedasPID != 0) {
+        Logger::getInstance()->info("Terminando microservicio de cotización de monedas");
+        kill(this->cotizacionDeMonedasPID, SIGINT);
+        wait(&exit);
+    }
 
-    Logger::getInstance()->info("Terminando microservicio de estado del tiempo");
-    kill(estadoDelTiempoPID, SIGINT);
-    wait(&exit);
+    if (this->estadoDelTiempoPID != 0) {
+        Logger::getInstance()->info("Terminando microservicio de estado del tiempo");
+        kill(this->estadoDelTiempoPID, SIGINT);
+        wait(&exit);
+    }
 
     Logger::getInstance()->info("Terminando colas");
-    colaPublica.destruir();
-    colaCiudades.destruir();
-    colaMonedas.destruir();
+    this->colaPublica.destruir();
+    this->colaCiudades.destruir();
+    this->colaMonedas.destruir();
 }
 
 void Server::initialize() {

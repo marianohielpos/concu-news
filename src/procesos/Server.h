@@ -11,6 +11,7 @@ typedef struct {
 
 
 #include <Cola.h>
+#include <SIGINT_Handler.h>
 #include "protocol.h"
 
 class Server {
@@ -21,8 +22,10 @@ private:
     Cola<message> colaMonedas = Cola<message>("/bin/bash", 'b');
     Cola<message> colaCiudades = Cola<message>("/bin/bash", 'c');
 
-    pid_t cotizacionDeMonedasPID;
-    pid_t estadoDelTiempoPID;
+    pid_t cotizacionDeMonedasPID = 0;
+    pid_t estadoDelTiempoPID = 0;
+
+    SIGINT_Handler sigint_handler;
 
 public:
 

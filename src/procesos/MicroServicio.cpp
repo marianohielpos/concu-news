@@ -6,6 +6,7 @@
 #include <string>
 #include <unistd.h>
 #include <SignalHandler.h>
+#include <Logger.h>
 #include "protocol.h"
 #include "../ipcs/SIGINT_Handler.h"
 
@@ -14,8 +15,10 @@ void MicroServicio::hidrate() {
     std::string line;
     std::ifstream file (this->file);
 
-    if (!file.is_open())
-        throw std::exception();
+    if (!file.is_open()) {
+        Logger::getInstance()->error("Error abriendo el archivo de datos. Inicilizando sin datos");
+        return;
+    }
 
     while (std::getline(file, line)) {
 
@@ -36,8 +39,10 @@ void MicroServicio::persist() {
 
     std::ofstream file (this->file);
 
-    if (!file.is_open())
-        throw std::exception();
+    if (!file.is_open()) {
+        Logger::getInstance()->error("Error abriendo el archivo de datos. No se persisten los datos");
+        return;
+    }
 
     for (std::map<std::string, std::string>::iterator it = this->data.begin(); it != this->data.end() ; it++) {
 
@@ -54,9 +59,13 @@ void MicroServicio::run() {
 
     SignalHandler :: getInstance()->registrarHandler (SIGINT, &sigint_handler);
 
+    this->hidrate();
+
     while (sigint_handler.getGracefulQuit() != 1) {
         this->handleRequest();
     }
+
+    this->persist();
 
     SignalHandler :: destruir();
 
