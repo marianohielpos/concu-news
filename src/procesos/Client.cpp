@@ -78,12 +78,23 @@ void Client::logRequest(message& m) {
 }
 
 
-void Client::printResponse(message& m) {
+void Client::printResponse(message& m, int type) {
   if (m.type == TYPE_SUCCESS) {
-    std::cout << "La respuesta del servidor es " << m.value << std::endl;
+    if (type == TYPE_GET_CITY) {
+      float temperature; int pressure, humidity;
+      std::sscanf(m.value, "%f;%d;%d", &temperature, &pressure, &humidity);
+      std::cout << "El tiempo de " << m.key << " es "
+        << "\n\tTemperatura: " << temperature << "°C"
+        << "\n\tPresión atmosférica: " << pressure << "mm"
+        << "\n\tHumedad: " << humidity << '%' << std::endl;
+    } else if (type == TYPE_GET_CURRENCY) {
+      std::cout << "La cotización de " << m.key << " es " << m.value << std::endl;
+    } else {
+      std::cout << "La respuesta del servidor es \n\t" << m.value << std::endl;
+    }
   } else if (m.type == TYPE_ERROR) {
     std::cout << "Oops, hubo un problema en el servidor. "
-              << "Su respuesta es " << m.value << std::endl;
+              << "Su respuesta es \n\t" << m.value << std::endl;
   }
 }
 
@@ -97,8 +108,9 @@ void Client::run() {
   message m = composeRequest();
   logRequest(m);
 
+  int type = m.type;
   cola.escribir(m);
 
   cola.leer(getpid(), &m);
-  printResponse(m);
+  printResponse(m, type);
 }
