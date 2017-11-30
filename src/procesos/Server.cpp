@@ -13,6 +13,8 @@
 
 void Server::run() {
 
+    SignalHandler :: getInstance()->registrarHandler (SIGINT, &this->sigint_handler);
+
     this->initialize();
 
     this->handleRequests();
@@ -23,15 +25,16 @@ void Server::run() {
 
 void Server::handleRequests() const {
 
-    SIGINT_Handler sigint_handler;
-
-    SignalHandler :: getInstance()->registrarHandler (SIGINT, &sigint_handler);
-
     message m;
+    int resultado = 0;
 
-    while (sigint_handler.getGracefulQuit() != 1) {
+    while (this->sigint_handler.getGracefulQuit() != 1) {
 
-        colaPublica.leer(REQUEST, &m);
+        resultado = colaPublica.leer(REQUEST, &m);
+
+        if (resultado == -1) {
+            continue;
+        }
 
         std::stringstream ss;
 
@@ -41,23 +44,24 @@ void Server::handleRequests() const {
         Logger::getInstance()->info(ss.str());
 
         if (m.type == TYPE_SET_CITY || m.type == TYPE_GET_CITY) {
-            Logger::getInstance()->info("Enviando mensaje a microservicio de ciudades");
+            Logger::getInstance()->info("Server: Enviando mensaje a microservicio de ciudades");
 
-            colaCiudades.escribir(m);
-
-            colaCiudades.leer(RESPONSE, &m);
+            m.mtype = this->estadoDelTiempoPID;
         } else {
-            Logger::getInstance()->info("Enviando mensaje a microservicio de monedas");
+            Logger::getInstance()->info("Server: Enviando mensaje a microservicio de monedas");
 
-            colaMonedas.escribir(m);
-
-            colaMonedas.leer(RESPONSE, &m);
+            m.mtype = this->cotizacionDeMonedasPID;
         }
 
+        colaMicorServicios.escribir(m);
+
+        colaMicorServicios.leer(RESPONSE, &m);
+
         m.mtype = m.responsePriority;
+
         m.type = TYPE_SUCCESS;
 
-        Logger::getInstance()->info("Respondiendo mensaje");
+        Logger::getInstance()->info("Server: Respondiendo mensaje");
 
         colaPublica.escribir(m);
     }
@@ -67,49 +71,52 @@ void Server::handleRequests() const {
 }
 
 void Server::terminate() const {
-    Logger::getInstance()->info("Terminando server");
+    Logger::getInstance()->info("Server: Terminando server");
 
     int exit;
 
-    Logger::getInstance()->info("Terminando microservicio de cotización de monedas");
-    kill(cotizacionDeMonedasPID, SIGINT);
-    wait(&exit);
+    if(this->cotizacionDeMonedasPID != 0) {
+        Logger::getInstance()->info("Server: Terminando microservicio de cotización de monedas");
+        kill(this->cotizacionDeMonedasPID, SIGINT);
+        wait(&exit);
+    }
 
-    Logger::getInstance()->info("Terminando microservicio de estado del tiempo");
-    kill(estadoDelTiempoPID, SIGINT);
-    wait(&exit);
+    if (this->estadoDelTiempoPID != 0) {
+        Logger::getInstance()->info("Server: Terminando microservicio de estado del tiempo");
+        kill(this->estadoDelTiempoPID, SIGINT);
+        wait(&exit);
+    }
 
-    Logger::getInstance()->info("Terminando colas");
-    colaPublica.destruir();
-    colaCiudades.destruir();
-    colaMonedas.destruir();
+    Logger::getInstance()->info("Server: Terminando colas");
+    this->colaPublica.destruir();
+    this->colaMicorServicios.destruir();
 }
 
 void Server::initialize() {
-    Logger::getInstance()->info("Inicializando server");
+    Logger::getInstance()->info("Server: Inicializando server");
 
-    Logger::getInstance()->info("Inicializando servicio de ciudades");
+    Logger::getInstance()->info("Server: Inicializando servicio de ciudades");
 
     this->cotizacionDeMonedasPID = fork();
 
     if (this->cotizacionDeMonedasPID == 0) {
 
-        MicroServicio cotizacionDeMonedas("cotizacion_de_monedas.txt");
+        MicroServicio cotizacionDeMonedas("cotizacion_de_monedas");
 
-        cotizacionDeMonedas.setQueue(&this->colaCiudades);
+        cotizacionDeMonedas.setQueue(&this->colaMicorServicios);
 
         cotizacionDeMonedas.run();
     }
 
-    Logger::getInstance()->info("Inicializando servicio de monedas");
+    Logger::getInstance()->info("Server: Inicializando servicio de monedas");
 
     this->estadoDelTiempoPID = fork();
 
     if (this->estadoDelTiempoPID == 0) {
 
-        MicroServicio estadoDelTiempo("estado_del_tiempo.txt");
+        MicroServicio estadoDelTiempo("estado_del_tiempo");
 
-        estadoDelTiempo.setQueue(&this->colaMonedas);
+        estadoDelTiempo.setQueue(&this->colaMicorServicios);
 
         estadoDelTiempo.run();
     }

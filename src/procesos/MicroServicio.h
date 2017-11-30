@@ -11,7 +11,7 @@ class MicroServicio {
 private:
     std::map<std::string, std::string> data;
 
-    void persist();
+    void persist() const;
     
     void hidrate();
 
@@ -24,6 +24,12 @@ private:
     std::string file;
 
     const Cola<message> *cola = nullptr;
+
+    pid_t queuePriority;
+
+    std::string name;
+
+    bool keyIsPresent(std::string key);
 
 public:
 
