@@ -60,8 +60,6 @@ void Server::handleRequests() const {
 
         m.mtype = m.responsePriority;
 
-        m.type = TYPE_SUCCESS;
-
         Logger::getInstance()->info("Server: Respondiendo mensaje");
 
         colaPublica.escribir(m);
