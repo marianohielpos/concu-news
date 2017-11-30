@@ -16,7 +16,7 @@ void MicroServicio::hidrate() {
     std::ifstream file (this->file);
 
     if (!file.is_open()) {
-        Logger::getInstance()->error(this->name + "Error abriendo el archivo de datos. Inicilizando sin datos");
+        Logger::getInstance()->error(this->name + ": Error abriendo el archivo de datos. Inicilizando sin datos");
         return;
     }
 
@@ -40,14 +40,14 @@ void MicroServicio::persist() const {
     std::ofstream file (this->file, std::ofstream::trunc);
 
     if (!file.is_open()) {
-        Logger::getInstance()->error(this->name + " Error abriendo el archivo de datos. No se persisten los datos");
+        Logger::getInstance()->error(this->name + ": Error abriendo el archivo de datos. No se persisten los datos");
         return;
     }
 
     for (std::map<std::string, std::string>::const_iterator it = this->data.begin(); it != this->data.end() ; it++) {
 
         file << it->first.c_str() << ":" << it->second.c_str() << std::endl;
-        
+
     }
 
     file.close();
@@ -59,21 +59,21 @@ void MicroServicio::run() {
 
     SignalHandler :: getInstance()->registrarHandler (SIGINT, &sigint_handler);
 
-    Logger::getInstance()->info(this->name + " Hidratando datos");
+    Logger::getInstance()->info(this->name + ": Hidratando datos");
 
     this->hidrate();
 
-    Logger::getInstance()->info(this->name + " Escuchando pedidos");
+    Logger::getInstance()->info(this->name + ": Escuchando pedidos");
     while (sigint_handler.getGracefulQuit() != 1) {
         this->handleRequest();
     }
 
-    Logger::getInstance()->info(this->name + " Persistiendo datos");
+    Logger::getInstance()->info(this->name + ": Persistiendo datos");
     this->persist();
 
     SignalHandler :: destruir();
 
-    Logger::getInstance()->info(this->name + " Saliendo");
+    Logger::getInstance()->info(this->name + ": Saliendo");
     exit(0);
 }
 
@@ -93,30 +93,30 @@ void MicroServicio::handleRequest() {
         return;
     }
 
-    Logger::getInstance()->info(this->name + " Recibiendo mensaje");
-    Logger::getInstance()->info(this->name + " Key: " + mensaje.key);
+    Logger::getInstance()->info(this->name + ": Recibiendo mensaje");
+    Logger::getInstance()->info(this->name + ": Key: " + mensaje.key);
 
     mensaje.mtype = RESPONSE;
 
     if (mensaje.type == TYPE_SET_CITY || mensaje.type == TYPE_SET_CURRENCY) {
-        Logger::getInstance()->info(this->name + " Guardando valor");
-        Logger::getInstance()->info(this->name + " Value: " + mensaje.value);
+        Logger::getInstance()->info(this->name + ": Guardando valor");
+        Logger::getInstance()->info(this->name + ": Value: " + mensaje.value);
         this->set(std::string(mensaje.key), std::string(mensaje.value));
         strcpy(mensaje.value, "OK");
         mensaje.type = TYPE_SUCCESS;
     } else {
         if (keyIsPresent(mensaje.key)) {
-            Logger::getInstance()->info(this->name + " Valor encontrado");
+            Logger::getInstance()->info(this->name + ": Valor encontrado");
             strcpy(mensaje.value, this->get(mensaje.key).c_str());
             mensaje.type = TYPE_SUCCESS;
         } else {
-            Logger::getInstance()->info(this->name + " Valor no encontrado");
+            Logger::getInstance()->info(this->name + ": Valor no encontrado");
             strcpy(mensaje.value, "Valor no encontrado");
             mensaje.type = TYPE_ERROR;
         }
     }
 
-    Logger::getInstance()->info(this->name + " Respondiendo mensaje");
+    Logger::getInstance()->info(this->name + ": Respondiendo mensaje");
 
     this->cola->escribir(mensaje);
 
