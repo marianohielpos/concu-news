@@ -3,6 +3,7 @@
 #include <iostream>
 #include <unistd.h>
 #include <signal.h>
+#include <sys/wait.h>
 #include <SIGINT_Handler.h>
 #include <SignalHandler.h>
 #include "../ipcs/Cola.h"

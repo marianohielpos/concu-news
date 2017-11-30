@@ -1,6 +1,7 @@
 
 #include "procesos/Client.h"
 #include "utilidades/Logger.h"
+#include <stdlib.h>
 #include <iostream>
 #include <getopt.h>
 
@@ -10,7 +11,8 @@ Opciones parsearParametros (int argc, char* const argv[]) {
 
     int opt;
     int mode = 0;
-    while ((opt = getopt(argc, argv, "hdacml:n:k:v:")) != -1) {
+
+    while ((opt = getopt(argc, argv, "hdacml:n:k:v:t:p:u:")) != -1) {
         switch (opt) {
             case 'l':
                 opciones.logName = std::string(optarg);
@@ -38,6 +40,15 @@ Opciones parsearParametros (int argc, char* const argv[]) {
             case 'v':
                 opciones.value = std::string(optarg);
                 break;
+            case 't':
+                opciones.temperature = std::stof(optarg);
+                break;
+            case 'p':
+                opciones.pressure = (unsigned int) std::stoul(optarg);
+                break;
+            case 'u':
+                opciones.humidity = (unsigned int) std::stoi(optarg);
+                break;
             case 'h':
                 std::cout << "Uso:\n"
                           << "\n"
@@ -53,7 +64,14 @@ Opciones parsearParametros (int argc, char* const argv[]) {
                           << "-k      La clave a consultar/setear.\n"
                           << "        Por ejemplo, si el modo es -c (ciudad), la clave puede ser \"Londres\"\n"
                           << "-v      El valor a guardar en la clave especificada.\n"
-                          << "        Solo permitido en consulta de admin."
+                          << "        Solo permitido en consulta de admin.\n"
+                          << "\n"
+                          << "Si se elige hacer una actualización de los datos de una ciudad como admin, se \n"
+                          << "pueden definir valores numéricos de temperatura, presión y humedad por separado: \n"
+                          << "\n"
+                          << "-t      Temperatura en grados Celsius.\n"
+                          << "-p      Presión atmosférica en mm.\n"
+                          << "-u      Humedad en porcientos.\n"
                           << std::endl;
                 exit(0);
 
@@ -66,6 +84,7 @@ Opciones parsearParametros (int argc, char* const argv[]) {
         << "una moneda!" << std::endl;
        exit(1);
     }
+
     return opciones;
 }
 

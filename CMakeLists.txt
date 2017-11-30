@@ -7,9 +7,11 @@ set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 
 
-file(GLOB_RECURSE client_sources "src/client.cpp" "src/utilidades/*.cpp" "src/procesos/*.cpp" "src/ipcs/*.cpp")
+file(GLOB_RECURSE client_sources "src/client.cpp" "src/utilidades/*.cpp"
+     "src/procesos/Client.cpp" "src/ipcs/*.cpp")
 
-file(GLOB_RECURSE server_sources "src/server.cpp" "src/utilidades/*.cpp" "src/procesos/*.cpp" src/ipcs/*.cpp)
+file(GLOB_RECURSE server_sources "src/server.cpp" "src/utilidades/*.cpp"
+     "src/procesos/Server.cpp" "src/procesos/MicroServicio.cpp" "src/ipcs/*.cpp")
 
 file(GLOB_RECURSE Concu_news_HEADERS "src/*.h")
 
