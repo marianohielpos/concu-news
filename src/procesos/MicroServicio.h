@@ -27,6 +27,10 @@ private:
 
     pid_t queuePriority;
 
+    std::string name;
+
+    bool keyIsPresent(std::string key);
+
 public:
 
     MicroServicio(std::string file);
