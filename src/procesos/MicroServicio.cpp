@@ -16,7 +16,7 @@ void MicroServicio::hidrate() {
     std::ifstream file (this->file);
 
     if (!file.is_open()) {
-        Logger::getInstance()->error("Error abriendo el archivo de datos. Inicilizando sin datos");
+        Logger::getInstance()->error(this->name + "Error abriendo el archivo de datos. Inicilizando sin datos");
         return;
     }
 
@@ -40,7 +40,7 @@ void MicroServicio::persist() const {
     std::ofstream file (this->file, std::ofstream::trunc);
 
     if (!file.is_open()) {
-        Logger::getInstance()->error("Error abriendo el archivo de datos. No se persisten los datos");
+        Logger::getInstance()->error(this->name + " Error abriendo el archivo de datos. No se persisten los datos");
         return;
     }
 
@@ -59,41 +59,68 @@ void MicroServicio::run() {
 
     SignalHandler :: getInstance()->registrarHandler (SIGINT, &sigint_handler);
 
+    Logger::getInstance()->info(this->name + " Hidratando datos");
+
     this->hidrate();
 
+    Logger::getInstance()->info(this->name + " Escuchando pedidos");
     while (sigint_handler.getGracefulQuit() != 1) {
         this->handleRequest();
     }
 
+    Logger::getInstance()->info(this->name + " Persistiendo datos");
     this->persist();
 
     SignalHandler :: destruir();
 
+    Logger::getInstance()->info(this->name + " Saliendo");
     exit(0);
 }
 
-MicroServicio::MicroServicio(std::string file) {
-    this->file = file;
+MicroServicio::MicroServicio(std::string name) {
+    this->file = name + ".txt";
     this->queuePriority = getpid();
+    this->name = name;
 }
 
 void MicroServicio::handleRequest() {
 
     message mensaje;
 
-    this->cola->leer(this->queuePriority, &mensaje);
+    int resultado = this->cola->leer(this->queuePriority, &mensaje);
 
-    if (mensaje.type == TYPE_SET_CITY || mensaje.type == TYPE_SET_CURRENCY) {
-        this->set(std::string(mensaje.key), std::string(mensaje.value));
-        strcpy(mensaje.value, "OK");
-    } else {
-        strcpy(mensaje.value, this->get(mensaje.key).c_str());
+    if (resultado == -1) {
+        return;
     }
 
+    Logger::getInstance()->info(this->name + " Recibiendo mensaje");
+    Logger::getInstance()->info(this->name + " Key: " + mensaje.key);
+
     mensaje.mtype = RESPONSE;
-    mensaje.type = TYPE_SUCCESS;
+
+    if (mensaje.type == TYPE_SET_CITY || mensaje.type == TYPE_SET_CURRENCY) {
+        Logger::getInstance()->info(this->name + " Guardando valor");
+        Logger::getInstance()->info(this->name + " Value: " + mensaje.value);
+        this->set(std::string(mensaje.key), std::string(mensaje.value));
+        strcpy(mensaje.value, "OK");
+        mensaje.type = TYPE_SUCCESS;
+    } else {
+        if (keyIsPresent(mensaje.key)) {
+            Logger::getInstance()->info(this->name + " Valor encontrado");
+            strcpy(mensaje.value, this->get(mensaje.key).c_str());
+            mensaje.type = TYPE_SUCCESS;
+        } else {
+            Logger::getInstance()->info(this->name + " Valor no encontrado");
+            strcpy(mensaje.value, "Valor no encontrado");
+            mensaje.type = TYPE_ERROR;
+        }
+    }
+
+    Logger::getInstance()->info(this->name + " Respondiendo mensaje");
 
     this->cola->escribir(mensaje);
+
+    return;
 
 }
 
@@ -101,14 +128,13 @@ void MicroServicio::set(std::string key, std::string value) {
     this->data[key] = value;
 }
 
-std::string MicroServicio::get(std::string key) {
-
+bool MicroServicio::keyIsPresent(std::string key) {
     std::map<std::string, std::string>::iterator it = this->data.find(key);
 
-    if (it == this->data.end()) {
-        return "Elemento no encontrado";
-    }
+    return it != this->data.end();
+}
 
+std::string MicroServicio::get(std::string key) {
     return this->data[key];
 }
 
